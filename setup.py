@@ -17,14 +17,14 @@ class install_with_kernelspec(install):
 		install.run(self)
 
 		# Now write the kernelspec
-		from IPython.kernel.kernelspec import KernelSpecManager
-		from IPython.utils.path import ensure_dir_exists
-		destdir = os.path.join(KernelSpecManager().user_kernel_dir, LANGUAGE)
-		ensure_dir_exists(destdir)
-		with open(os.path.join(destdir, 'kernel.json'), 'w') as f:
-			json.dump(kernel_json, f, sort_keys=True)
-		
-		# TODO: Copy resources once they're specified
+		from jupyter_client.kernelspec import KernelSpecManager
+		from IPython.utils.tempdir import TemporaryDirectory
+		with TemporaryDirectory() as td:
+			os.chmod(td, 0o755)
+			with open(os.path.join(td, 'kernel.json'), 'w') as f:
+				json.dump(kernel_json, f, sort_keys=True)
+			ksm = KernelSpecManager()
+			ksm.install_kernel_spec(td, 'redis', user=self.user, replace=True, prefix=self.prefix)
 
 svem_flag = '--single-version-externally-managed'
 if svem_flag in sys.argv:
