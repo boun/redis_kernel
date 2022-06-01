@@ -1,9 +1,13 @@
-from distutils.core import setup
-from distutils.command.install import install
+from setuptools import setup
+from setuptools.command.install import install
 import json
 import os.path
 import sys
 from redis_kernel.constants import *
+
+if sys.version_info.major != 3 or sys.version_info.minor < 6:
+    sys.exit('We supports Python 3.6+ only')
+
 
 kernel_json = {"argv":[sys.executable,"-m", NAME, "-f", "{connection_file}"],
  "display_name": DISPLAY_NAME,
@@ -11,7 +15,7 @@ kernel_json = {"argv":[sys.executable,"-m", NAME, "-f", "{connection_file}"],
  "codemirror_mode": "shell"
 }
 
-class install_with_kernelspec(install):
+class Installer(install):
 	def run(self):
 		# Regular installation
 		install.run(self)
@@ -39,14 +43,17 @@ setup(name = NAME,
 	  author_email='boun@gmx.de',
 	  url='https://github.com/boun/redis_kernel',
 	  packages=[ NAME ],
-	  cmdclass={'install': install_with_kernelspec},
-      install_requires=['jupyter>=2.0.0',
+	  cmdclass={'install': Installer},
+      include_package_data=True,
+      install_requires=['jupyter>=1.0.0',
+                        'jupyter_client',
                         'ipykernel',
                         'metakernel'],
 	  classifiers = [
 		  'Framework :: IPython',
-		  'Programming Language :: Python :: 3.4',
+		  'Programming Language :: Python :: 3.6',
 		  'Programming Language :: Python :: 3',
+          'Development Status :: 3 - Alpha',
 		  'Topic :: System :: Shells',
 	  ]
 )
